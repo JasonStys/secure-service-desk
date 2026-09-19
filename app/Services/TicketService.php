@@ -30,6 +30,19 @@ class TicketService
         return DB::transaction(function () use ($actor, $data): Ticket {
             $requestKey = $data['request_key'] ?? null;
             $priority = Priority::from($data['priority']);
+            $tags = array_values(array_unique($data['tags'] ?? []));
+            if ($requestKey !== null) {
+                $existing = Ticket::query()
+                    ->where('tenant_id', $actor->tenant_id)
+                    ->where('request_key', $requestKey)
+                    ->first();
+                if ($existing !== null) {
+                    $this->assertSameCreateIntent($existing, $actor, $data, $priority, $tags);
+
+                    return $existing;
+                }
+            }
+
             $values = [
                 'requester_id' => $actor->id,
                 'public_id' => (string) Str::uuid(),
@@ -37,7 +50,7 @@ class TicketService
                 'description' => $data['description'],
                 'status' => TicketStatus::New,
                 'priority' => $priority,
-                'tags' => array_values(array_unique($data['tags'] ?? [])),
+                'tags' => $tags,
                 'sla_due_at' => now()->addHours($priority->slaHours()),
             ];
             $ticket = $requestKey === null
@@ -48,14 +61,7 @@ class TicketService
                 );
 
             if (! $ticket->wasRecentlyCreated) {
-                $sameIntent = $ticket->requester_id === $actor->id
-                    && $ticket->title === $data['title']
-                    && $ticket->description === $data['description']
-                    && $ticket->priority === $priority
-                    && $ticket->tags === array_values(array_unique($data['tags'] ?? []));
-                if (! $sameIntent) {
-                    throw new ConflictHttpException('The request key was already used for a different ticket.');
-                }
+                $this->assertSameCreateIntent($ticket, $actor, $data, $priority, $tags);
 
                 return $ticket;
             }
@@ -64,6 +70,24 @@ class TicketService
 
             return $ticket;
         });
+    }
+
+    /** Reject replay keys whose stored ticket differs from the caller's current intent. */
+    private function assertSameCreateIntent(
+        Ticket $ticket,
+        User $actor,
+        array $data,
+        Priority $priority,
+        array $tags,
+    ): void {
+        $sameIntent = $ticket->requester_id === $actor->id
+            && $ticket->title === $data['title']
+            && $ticket->description === $data['description']
+            && $ticket->priority === $priority
+            && $ticket->tags === $tags;
+        if (! $sameIntent) {
+            throw new ConflictHttpException('The request key was already used for a different ticket.');
+        }
     }
 
     /** Append a comment after checking object- and tenant-level access. */
