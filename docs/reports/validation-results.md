@@ -6,7 +6,9 @@ Run date: 2026-09-18
 
 The custom validator checks required documentation, headers on authored code, local documentation links, full-SHA action pins, common credential patterns, forbidden employer references, and freshness of the generated exact-line code index.
 
-Current local status: **pass**. The validator checked 42 authored source files, generated `docs/code-index.md`, then confirmed the generated file was byte-for-byte current. Required documents, source headers, local links, action pins, credential patterns, and prohibited references all passed.
+Current local and CI status: **pass**. The validator checked 43 authored source files, generated `docs/code-index.md`, then confirmed the generated file was byte-for-byte current. Required documents, source headers, local links, action pins, credential patterns, and prohibited references all passed.
+
+The [final CI run](https://github.com/JasonStys/secure-service-desk/actions/runs/35411279107) repeated the policy check from a clean Ubuntu checkout. All external GitHub Actions are pinned to full 40-character commit SHAs; Dependabot is configured for grouped weekly maintenance while preserving the selected LTS Node and compatible PHPUnit major lines.
 
 ## Toolchain provenance
 

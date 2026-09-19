@@ -18,4 +18,19 @@ The measured suite covers 23 total PHP/JavaScript test cases. It includes an eig
 
 ## CI results
 
-The repository must not be treated as release-ready until the current `main` CI and CodeQL runs are green. CI repeats clean installs and adds PostgreSQL integration plus container build checks. The workflow link is available from the README badge after publication.
+Final `main` verification completed on 2026-09-18 PDT (2026-09-19 UTC):
+
+| Check | Result | Evidence |
+|---|---|---|
+| PostgreSQL 18.6 + PHPUnit 12.5.35 | Pass | Strict native runner reported `OK (19 tests, 52 assertions)` with coverage and `--fail-on-warning`. |
+| Composer audit | Pass | No known vulnerability advisories. |
+| Laravel Pint | Pass | 49 PHP files checked. |
+| JavaScript | Pass | Clean install, zero high-severity audit findings, 4/4 tests, and production Vite build. |
+| Repository policy | Pass | 43 authored source files; generated line index current. |
+| Container | Pass | Multi-stage, non-root PHP 8.5 image built successfully. |
+| CodeQL | Pass | JavaScript security-and-quality analysis completed successfully. |
+
+- [Final CI run](https://github.com/JasonStys/secure-service-desk/actions/runs/35411279107)
+- [Final CodeQL run](https://github.com/JasonStys/secure-service-desk/actions/runs/35411279104)
+
+The PHP job publishes its Clover coverage file as a 14-day workflow artifact. CI deliberately calls PHPUnit directly with `--display-warnings --fail-on-warning`; a warning cannot be hidden inside an otherwise successful compact report.

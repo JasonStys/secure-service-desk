@@ -12,8 +12,8 @@ Run date: 2026-09-18
 | Concurrency | Expected version and row lock reject stale write | Pass |
 | Reliable delivery | Atomic outbox record; bounded retry; 500-character error; dead letter | Pass |
 | Secret hygiene | Ignored `.env`, placeholder examples, token/key pattern scan | Pass |
-| Dependency exposure | Composer and npm audits are CI quality gates | Pending clean CI run |
-| Static analysis | JavaScript/TypeScript CodeQL workflow | Pending clean CI run |
+| Dependency exposure | Composer and npm audits are CI quality gates | Pass — [final CI](https://github.com/JasonStys/secure-service-desk/actions/runs/35411279107) |
+| Static analysis | JavaScript/TypeScript CodeQL security-and-quality suite | Pass — [final CodeQL](https://github.com/JasonStys/secure-service-desk/actions/runs/35411279104) |
 
 ## OWASP-oriented review
 
