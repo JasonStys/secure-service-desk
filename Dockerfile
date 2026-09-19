@@ -6,7 +6,7 @@ WORKDIR /build
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-interaction --no-scripts --prefer-dist --optimize-autoloader
 
-FROM node:24-alpine AS frontend
+FROM node:25-alpine AS frontend
 WORKDIR /build
 COPY package.json package-lock.json ./
 RUN npm ci --ignore-scripts
