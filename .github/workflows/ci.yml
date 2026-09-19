@@ -1,0 +1,132 @@
+# File: Runs backend, frontend, repository-policy, and container quality gates.
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['docs/**', '*.md']
+  pull_request:
+    paths-ignore: ['docs/**', '*.md']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: PHP and PostgreSQL
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: service_desk_test
+          POSTGRES_USER: service_desk
+          POSTGRES_PASSWORD: test-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd="pg_isready -U service_desk -d service_desk_test"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=10
+    env:
+      APP_ENV: testing
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      APP_DEBUG: 'false'
+      DB_CONNECTION: pgsql
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_DATABASE: service_desk_test
+      DB_USERNAME: service_desk
+      DB_PASSWORD: test-password
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.5'
+          extensions: mbstring, intl, pdo_pgsql
+          coverage: pcov
+          tools: composer:v2
+      - name: Validate Composer metadata
+        run: composer validate --strict
+      - name: Install PHP dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Audit PHP dependencies
+        run: composer audit --locked
+      - name: Check formatting
+        run: vendor/bin/pint --test
+      - name: Exercise PostgreSQL schema and seed
+        run: php artisan migrate:fresh --seed --force
+      - name: Run PHP tests with coverage
+        run: php artisan test --coverage-clover=build/coverage.xml
+      - name: Upload coverage evidence
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: php-coverage
+          path: build/coverage.xml
+          if-no-files-found: error
+          retention-days: 14
+
+  frontend:
+    name: JavaScript and production assets
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install JavaScript dependencies
+        run: npm ci
+      - name: Audit JavaScript dependencies
+        run: npm audit --audit-level=high
+      - name: Run JavaScript tests
+        run: npm test
+      - name: Build production assets
+        run: npm run build
+
+  repository-policy:
+    name: Repository policy
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up PHP
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
+        with:
+          php-version: '8.5'
+          coverage: none
+      - name: Validate repository policy and code index
+        run: php tools/validate_repo.php --check
+
+  container:
+    name: Container build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - name: Build application image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          push: false
+          tags: secure-service-desk:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

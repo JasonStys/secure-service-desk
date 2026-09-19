@@ -1,0 +1,40 @@
+# File: Runs the application with PostgreSQL for local integration testing.
+
+services:
+  database:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: service_desk
+      POSTGRES_USER: service_desk
+      POSTGRES_PASSWORD: local-demo-password
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U service_desk -d service_desk"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  application:
+    build: .
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "false"
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_DATABASE: service_desk
+      DB_USERNAME: service_desk
+      DB_PASSWORD: local-demo-password
+      WEBHOOK_SECRET: local-demo-secret-change-me
+    command: ["sh", "-c", "php artisan migrate --force && php artisan db:seed --force && php artisan serve --host=0.0.0.0 --port=8000"]
+    ports:
+      - "8000:8000"
+
+volumes:
+  postgres-data:
