@@ -12,15 +12,19 @@ use App\Enums\Role;
 use App\Models\Tenant;
 use App\Models\User;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Foundation\Vite;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Vite as ViteFacade;
+use Tests\Support\FakeVite;
 
 abstract class TestCase extends BaseTestCase
 {
-    /** Disable asset-manifest lookup so HTTP tests remain independent of frontend builds. */
+    /** Bind a named asset fake so HTTP tests remain independent of frontend builds and coverage-safe. */
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutVite();
+        ViteFacade::clearResolvedInstance();
+        $this->swap(Vite::class, new FakeVite);
     }
 
     /** @return array{tenant: Tenant, agent: User, requester: User, outsider: User} Synthetic actors. */
