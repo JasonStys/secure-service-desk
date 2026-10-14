@@ -128,6 +128,7 @@ The complete contract is in [OpenAPI](docs/openapi.yaml) and the human-readable 
 - [Security model](docs/security.md)
 - [Testing strategy](docs/testing.md)
 - [Code index](docs/code-index.md)
+- [Dependency and Actions review](docs/reports/actions-review-2026-10-14.md)
 
 ## Scope
 
