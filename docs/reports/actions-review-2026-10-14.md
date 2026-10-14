@@ -11,8 +11,14 @@ Local validation: strict Composer metadata and locked audit passed; npm audit
 reported zero known vulnerabilities; all four frontend tests and the Vite
 production build passed. PostgreSQL schema/seed, backend coverage and container
 builds are validated on disposable Actions runners, not by changing local Docker.
-Final native run links will be appended after verification. Historical logs and
-artifact downloads stay in the private PC archive.
+Accepted main source: e42a60f70a56085169f927c0a3f4fbf3e1f485e7.
+[CI 38639974529](https://github.com/JasonStys/secure-service-desk/actions/runs/38639974529)
+passed all four jobs (PHP/PostgreSQL/coverage, frontend, policy, container).
+[CodeQL 38639974236](https://github.com/JasonStys/secure-service-desk/actions/runs/38639974236)
+passed. The previously failing workflow-update proposal was refreshed, not merged:
+b01d65038d1965a36f3170c4f7b6716fa499e2cc passed CI 38640539541 and CodeQL
+38640539466. Approved cleanup may remove old URLs; logs/artifacts remain private
+in the PC archive. Documentation-only changes use the existing path filters.
 
 Advisories: [CommonMark raw HTML](https://github.com/advisories/GHSA-97jj-33gv-5xf9),
 [CommonMark tables](https://github.com/advisories/GHSA-3q6v-r5mr-hxv8),
