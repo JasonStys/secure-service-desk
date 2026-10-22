@@ -4,11 +4,11 @@ name: CodeQL
 on:
   push:
     branches: [main]
-    paths-ignore: ['docs/**', '*.md']
+    paths-ignore: ["docs/**", "*.md"]
   pull_request:
-    paths-ignore: ['docs/**', '*.md']
+    paths-ignore: ["docs/**", "*.md"]
   schedule:
-    - cron: '23 9 * * 2'
+    - cron: "23 9 * * 2"
   workflow_dispatch:
 
 permissions:
@@ -28,11 +28,11 @@ jobs:
       - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.38.3; coordinated version
+        uses: github/codeql-action/init@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0; coordinated version
         with:
           languages: javascript-typescript
           queries: security-and-quality
       - name: Analyze
-        uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.38.3; coordinated version
+        uses: github/codeql-action/analyze@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4.39.0; coordinated version
         with:
           category: /language:javascript-typescript
