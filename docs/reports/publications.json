@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "project": "secure-service-desk",
+  "author": "Jason Stys",
+  "editionDate": "2026-11-09",
+  "sourceBaseline": "561f1a428594d3a12fd71c9c969e8e6f6da4efe3",
+  "sourceUrl": "https://github.com/JasonStys/secure-service-desk/tree/561f1a428594d3a12fd71c9c969e8e6f6da4efe3",
+  "functionalEvidenceBaseline": "561f1a428594d3a12fd71c9c969e8e6f6da4efe3",
+  "evidenceObservedAt": "2026-11-10T05:25:40.628667+00:00",
+  "workflowEvidence": [
+    {
+      "conclusion": "success",
+      "databaseId": 42727354124,
+      "event": "push",
+      "headSha": "561f1a428594d3a12fd71c9c969e8e6f6da4efe3",
+      "name": "CodeQL",
+      "status": "completed",
+      "url": "https://github.com/JasonStys/secure-service-desk/actions/runs/42727354124"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 42727354111,
+      "event": "push",
+      "headSha": "561f1a428594d3a12fd71c9c969e8e6f6da4efe3",
+      "name": "CI",
+      "status": "completed",
+      "url": "https://github.com/JasonStys/secure-service-desk/actions/runs/42727354111"
+    }
+  ],
+  "summary": "Assign and unassign tenant agents with shared version checks, atomic audit/outbox writes and bounded ticket history; filter owner/SLA queues and recheck stale authorization and SLA candidates.",
+  "rationale": "Turns a ticket list into an auditable support workflow that resists lost updates, partial commits and cross-tenant mistakes.",
+  "limitations": [
+    "Synthetic local demo; the identity adapter is not production authentication and notifications use a log adapter.",
+    "Bounded offset history can shift under concurrent inserts; it is not a signed snapshot or enterprise scaling claim.",
+    "Browser checks cover desktop/mobile Chromium-family and no-JavaScript paths, not every device or assistive technology."
+  ],
+  "documents": [
+    {
+      "filename": "project-guide.docx",
+      "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "bytes": 47324,
+      "sha256": "b6296772253f1560b2ed5c9576d69ceb77787f30d063df689c0a2235e26c7ab5",
+      "sourceBaseline": "561f1a428594d3a12fd71c9c969e8e6f6da4efe3",
+      "visualReview": {
+        "approved": true,
+        "method": "Every rendered page individually viewed at readable original resolution",
+        "pageCount": 8,
+        "renderedPageSha256": {
+          "page-1.png": "fcebe4cf9236fe47d11bdbebcd553ecc7a0365187bc19f9fc7625b6afdb4cffc",
+          "page-2.png": "62492cd86e83130cd1aff87e4720dc4a81810ca88f3a597ffc0deea9e56530e9",
+          "page-3.png": "c7be65a97b0a48824e42d0ffbb76d181425de44a0c5238bd35f954fdbd9ce161",
+          "page-4.png": "1f8c5fedcc0fd83ca3a34ae079fdf1ef9a370eb7a1b6da1b344f00bf846c29ec",
+          "page-5.png": "996917867bf20643575b44774e00b4cd9fc5eb59f999138804c6d11f19412ade",
+          "page-6.png": "1e3a3a893747ec07e169f4ba30fd9755fbcfe6b7c509ed9d33f0a5f6968bf148",
+          "page-7.png": "51a5293cd6b6f4c8908840e858c723028a93d1abff169859f4fd09b0b757bb12",
+          "page-8.png": "abef4f440aadc7d690d12ff9f7c2926812eb5aad6cbdd4cb24c75a73e9b7507d"
+        }
+      }
+    }
+  ],
+  "scope": "Reviewed documentation editions of the cited source. Checksums identify bytes, not authorship. Historical measurements retain their own dates; integration CI must be checked separately."
+}
