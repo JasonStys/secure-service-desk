@@ -26,7 +26,7 @@ foreach ($required as $path) {
 }
 
 $sourceRoots = ['app', 'database/factories', 'database/migrations', 'database/seeders', 'routes', 'resources/js', 'resources/css', 'resources/views', 'tests'];
-$sources = ['bootstrap/app.php', 'vite.config.js', 'tools/validate_repo.php', 'scripts/verify.sh'];
+$sources = ['bootstrap/app.php', 'vite.config.js', 'playwright.config.js', 'tools/validate_repo.php', 'scripts/verify.sh'];
 foreach ($sourceRoots as $directory) {
     $absolute = "{$root}/{$directory}";
     if (! is_dir($absolute)) {

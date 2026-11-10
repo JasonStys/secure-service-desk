@@ -23,6 +23,7 @@ class SlaEscalationService
             ->where('sla_due_at', '<=', now())
             ->whereNotIn('status', ['resolved', 'closed'])
             ->orderBy('sla_due_at')
+            ->orderBy('id')
             ->limit(max(1, min($limit, 500)))
             ->pluck('id');
 
@@ -30,7 +31,10 @@ class SlaEscalationService
         foreach ($ids as $id) {
             $count += DB::transaction(function () use ($id): int {
                 $ticket = Ticket::query()->lockForUpdate()->find($id);
-                if ($ticket === null || $ticket->sla_breached_at !== null || $ticket->status->terminal()) {
+                // Recheck all candidate conditions after acquiring the row lock: another agent may resolve it.
+                if ($ticket === null || $ticket->sla_breached_at !== null
+                    || in_array($ticket->status->value, ['resolved', 'closed'], true)
+                    || $ticket->sla_due_at->isAfter(now())) {
                     return 0;
                 }
 

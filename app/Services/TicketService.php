@@ -2,7 +2,7 @@
 
 /**
  * File: Owns tenant-safe ticket creation, comments, and finite-state transitions.
- * Symbols: TicketService and its create(), addComment(), transition(), and visibleOrFail() operations.
+ * Symbols: TicketService create(), addComment(), transition(), assign(), and visibleOrFail() operations.
  * State: transaction-scoped ticket, audit, and outbox records; exact locations are in docs/code-index.md.
  */
 
@@ -22,6 +22,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\ConflictHttpException;
 
+/** Keep ticket access, version checks and audit/outbox writes inside one reusable domain boundary. */
 class TicketService
 {
     /** Create or safely replay a ticket request keyed within one tenant. */
@@ -30,7 +31,8 @@ class TicketService
         return DB::transaction(function () use ($actor, $data): Ticket {
             $requestKey = $data['request_key'] ?? null;
             $priority = Priority::from($data['priority']);
-            $tags = array_values(array_unique($data['tags'] ?? []));
+            // An optional browser tag field may arrive blank/null after Laravel normalization.
+            $tags = array_values(array_unique(array_filter($data['tags'] ?? [], fn ($tag) => $tag !== null && $tag !== '')));
             if ($requestKey !== null) {
                 $existing = Ticket::query()
                     ->where('tenant_id', $actor->tenant_id)
@@ -68,7 +70,8 @@ class TicketService
 
             $this->record($ticket, $actor, 'ticket.created', ['priority' => $priority->value]);
 
-            return $ticket;
+            // Return database defaults (including version/nullable ownership) on the first API response too.
+            return $ticket->refresh();
         });
     }
 
@@ -96,6 +99,8 @@ class TicketService
         $ticket = $this->visibleOrFail($actor, $ticket);
 
         return DB::transaction(function () use ($actor, $ticket, $body): TicketComment {
+            $ticket = Ticket::query()->lockForUpdate()->findOrFail($ticket->id);
+            $this->visibleOrFail($actor, $ticket);
             $comment = TicketComment::query()->create([
                 'tenant_id' => $ticket->tenant_id,
                 'ticket_id' => $ticket->id,
@@ -119,6 +124,7 @@ class TicketService
 
         return DB::transaction(function () use ($actor, $ticket, $next, $expectedVersion): Ticket {
             $current = Ticket::query()->lockForUpdate()->findOrFail($ticket->id);
+            $this->visibleOrFail($actor, $current);
             if ($current->version !== $expectedVersion) {
                 throw ValidationException::withMessages(['version' => 'The ticket changed; refresh before retrying.']);
             }
@@ -156,6 +162,42 @@ class TicketService
         }
 
         return $ticket;
+    }
+
+    /** Assign/unassign one tenant agent with the same optimistic version used by lifecycle writes. */
+    public function assign(User $actor, Ticket $ticket, ?int $assigneeId, int $expectedVersion): Ticket
+    {
+        $this->visibleOrFail($actor, $ticket);
+        if (! $actor->role->canManageTickets()) {
+            throw new AuthorizationException('Only service agents may assign work.');
+        }
+
+        return DB::transaction(function () use ($actor, $ticket, $assigneeId, $expectedVersion): Ticket {
+            $current = Ticket::query()->lockForUpdate()->findOrFail($ticket->id);
+            $this->visibleOrFail($actor, $current);
+            if ($current->version !== $expectedVersion) {
+                throw ValidationException::withMessages(['version' => 'The ticket changed; refresh before assigning.']);
+            }
+            if (in_array($current->status, [TicketStatus::Resolved, TicketStatus::Closed], true)) {
+                throw ValidationException::withMessages(['assignee_id' => 'Reopen resolved work before assigning; closed tickets cannot be assigned.']);
+            }
+            if ($assigneeId !== null) {
+                $assignee = User::query()->where('tenant_id', $actor->tenant_id)->find($assigneeId);
+                if ($assignee === null || ! $assignee->role->canManageTickets()) {
+                    throw ValidationException::withMessages(['assignee_id' => 'Choose an eligible service agent in this tenant.']);
+                }
+            }
+            if ($current->assignee_id === $assigneeId) {
+                return $current;
+            }
+            $previous = $current->assignee_id;
+            $current->forceFill(['assignee_id' => $assigneeId, 'version' => $current->version + 1])->save();
+            $this->record($current, $actor, 'ticket.assigned', [
+                'from_assignee_id' => $previous, 'to_assignee_id' => $assigneeId, 'version' => $current->version,
+            ]);
+
+            return $current->refresh();
+        });
     }
 
     /** Append an audit row and a deduplicated notification in the caller's transaction. */

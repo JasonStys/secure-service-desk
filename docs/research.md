@@ -24,3 +24,14 @@ Research was refreshed on 2026-09-18 from primary documentation.
 PHP/Laravel is appropriate here because request validation, database transactions, server rendering, queues, scheduling, and CSRF controls are cohesive framework capabilities. PostgreSQL is the production target for relational constraints, concurrent row locking, and indexed full-text search. Vanilla JavaScript keeps the accessibility and state surface small because the primary workflow does not need a client application framework.
 
 All third-party version ranges remain constrained by lockfiles, dependency audits, automated update proposals, and CI. A dependency update is accepted only after the full test and build gate passes.
+
+## 2026-11-09 security follow-up
+
+The locked Composer audit identified seven advisories across HTTP Foundation, HTTP Kernel, Routing
+and MIME. Minimal compatible lock changes selected HTTP Foundation/Kernel/Routing8.1.11 and
+MIME8.1.10. The complete lock audit then reported no known advisories; no advisory is ignored.
+Existing stale local vendor files were synchronized with the committed lock before acceptance.
+
+- [Symfony HEAD matcher correction](https://symfony.com/cve-2026-118514).
+- [Symfony forwarded fragment header correction](https://github.com/symfony/symfony/security/advisories/GHSA-wg5q-m2ww-f3c9).
+- [Symfony MIME parameter correction and corrected release history](https://symfony.com/cve-2026-45070).

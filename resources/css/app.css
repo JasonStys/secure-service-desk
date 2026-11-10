@@ -53,7 +53,14 @@ button:hover { background: var(--teal-dark); }
 .ticket-form .wide { grid-column: 1 / -1; }
 label { color: var(--muted); font-size: .86rem; font-weight: 720; }
 .hint { font-weight: 400; }
-.filters { display: grid; grid-template-columns: 1fr 8rem 8rem auto; gap: .7rem; align-items: end; margin-bottom: 1rem; padding: .9rem; border-radius: .6rem; background: #ece9df; }
+.filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .7rem; align-items: end; margin-bottom: 1rem; padding: .9rem; border-radius: .6rem; background: #ece9df; }
+.detail-layout { max-width: 64rem; margin: 2rem auto; padding: 0 1rem; display: grid; gap: 1.25rem; }
+.detail-layout .panel { min-width: 0; }
+.workspace-form { display: grid; gap: .75rem; margin: 1rem 0; }
+.workspace-form button { justify-self: start; }
+.prewrap { white-space: pre-wrap; overflow-wrap: anywhere; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.site-header h1, .ticket-id, .metadata dd { overflow-wrap: anywhere; }
 .ticket-list { display: grid; gap: .85rem; }
 .ticket { padding: 1rem; border: 1px solid var(--line); border-left: 4px solid var(--teal); border-radius: .6rem; background: var(--surface); }
 .ticket > header { display: flex; justify-content: space-between; gap: 1rem; }
@@ -71,7 +78,7 @@ label { color: var(--muted); font-size: .86rem; font-weight: 720; }
 .ticket-actions { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; padding-top: .8rem; border-top: 1px solid var(--line); }
 .ticket-actions form { display: grid; grid-template-columns: 1fr auto; gap: .45rem; align-items: end; }
 .secondary { padding: .62rem .75rem; background: white; color: var(--teal-dark); }
-.pagination { display: flex; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.pagination { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line); }
 .empty { padding: 2rem; text-align: center; color: var(--muted); }
 footer { padding: 1rem; border-top: 1px solid var(--line); color: var(--muted); text-align: center; font-size: .84rem; }
 

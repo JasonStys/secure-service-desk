@@ -24,9 +24,28 @@ php tools/validate_repo.php --check
 
 Use `bash scripts/verify.sh` to run the complete local gate. CI runs equivalent jobs from a clean checkout and adds PostgreSQL/container checks.
 
+For actual browser acceptance, build with `npm ci && npm run build`, install the exact browser with
+`npx playwright install chromium`, then run `npm run check:browser-isolation` and
+`npm run test:browser`. Set `SSD_BROWSER_PHP` to a PHP8.5 executable if it is not on PATH;
+`SSD_BROWSER_PORT` defaults to the distinct unused loopback port18971. A private temporary
+SQLite/database/storage/session/config/runtime is created and only its owned child is stopped.
+The real.env file, local HMR server and existing application database are never adopted. CSRF is
+active because the fixture is not Laravel's special `testing` environment. Standard no-script
+forms, same-origin browser behavior and token-fallback negative controls are exercised separately.
+
+See [this upgrade's completed validation](reports/practical-workflows-2026-11-09.md) for counts and
+limits; earlier publication reports remain historical records.
+
 ## Test data
 
 Factories and seeders use invented names and reserved `.example` domains. Feature tests refresh the database for isolation. Frozen clocks make SLA and retry behavior deterministic.
+
+Ownership acceptance independently checks exact audit/outbox deltas, same-owner no-op, assign and
+unassign, shared-version stale rejection, missing/foreign/ineligible targets, requester/cross-tenant
+concealment, resolved/reopen/closed behavior, due-now/exact24h/just-after boundaries, escaped bounded
+history and optional blank tags. A connection-local query-event fixture interleaves resolution,
+closure or deadline extension after candidate selection, before SLA locking: no sleep or real
+service is needed to prove that an invalidated candidate must not escalate.
 
 ## Coverage philosophy
 
