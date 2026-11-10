@@ -5,10 +5,17 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "test": "node --test tests/frontend/*.test.js"
+    "test": "node --test tests/frontend/*.test.js",
+    "test:browser": "playwright test",
+    "check:browser-isolation": "node tests/browser/check-isolation.js",
+    "format:browser": "prettier --write --tab-width 4 --single-quote --print-width 100 tests/browser/*.js playwright.config.js",
+    "check:browser-format": "prettier --check --tab-width 4 --single-quote --print-width 100 tests/browser/*.js playwright.config.js"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.64.0",
     "laravel-vite-plugin": "^3.1",
+    "prettier": "3.9.10",
     "vite": "^8.3.4"
   }
 }

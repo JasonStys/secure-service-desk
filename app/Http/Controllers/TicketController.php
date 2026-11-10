@@ -2,13 +2,14 @@
 
 /**
  * File: Handles CSRF-protected browser mutations and delegates domain rules to TicketService.
- * Symbols: TicketController, store(), comment(), and transition().
+ * Symbols: TicketController store(), comment(), transition(), show(), and assign().
  * State: validated request fields only; exact declarations are indexed in docs/code-index.md.
  */
 
 namespace App\Http\Controllers;
 
 use App\Enums\Priority;
+use App\Enums\Role;
 use App\Enums\TicketStatus;
 use App\Models\Ticket;
 use App\Models\User;
@@ -16,6 +17,7 @@ use App\Services\TicketService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class TicketController extends Controller
 {
@@ -30,7 +32,7 @@ class TicketController extends Controller
             'description' => ['required', 'string', 'max:4000'],
             'priority' => ['required', Rule::enum(Priority::class)],
             'tags' => ['sometimes', 'array', 'max:5'],
-            'tags.*' => ['string', 'max:30', 'regex:/^[a-z0-9-]+$/'],
+            'tags.*' => ['nullable', 'string', 'max:30', 'regex:/^[a-z0-9-]+$/'],
             'request_key' => ['nullable', 'string', 'max:100'],
         ]);
         /** @var User $actor */
@@ -63,5 +65,33 @@ class TicketController extends Controller
         $this->tickets->transition($actor, $ticket, TicketStatus::from($data['status']), $data['version']);
 
         return back()->with('status', 'Ticket status updated.');
+    }
+
+    /** Show independently paginated discussions/audit without loading the whole ticket history. */
+    public function show(Request $request, Ticket $ticket): View
+    {
+        $request->validate(['comments_page' => ['nullable', 'integer', 'min:1', 'max:100000'],
+            'audit_page' => ['nullable', 'integer', 'min:1', 'max:100000']]);
+        $actor = $request->attributes->get('actor');
+        $this->tickets->visibleOrFail($actor, $ticket);
+
+        return view('ticket', [
+            'actor' => $actor, 'ticket' => $ticket->load(['requester', 'assignee']),
+            'comments' => $ticket->comments()->reorder()->orderByDesc('id')->with('author')->simplePaginate(20, ['*'], 'comments_page')->withQueryString(),
+            'audit' => $ticket->auditEntries()->reorder()->orderByDesc('id')->simplePaginate(20, ['*'], 'audit_page')->withQueryString(),
+            'agents' => $actor->role->canManageTickets() ? User::query()->where('tenant_id', $actor->tenant_id)
+                ->whereIn('role', [Role::Agent->value, Role::Admin->value])->orderBy('name')->orderBy('id')->limit(201)->get() : collect(),
+            'statuses' => TicketStatus::cases(),
+        ]);
+    }
+
+    /** Change ownership through the shared tenant/version-safe service. */
+    public function assign(Request $request, Ticket $ticket): RedirectResponse
+    {
+        $data = $request->validate(['assignee_id' => ['present', 'nullable', 'integer', 'min:1'],
+            'version' => ['required', 'integer', 'min:1']]);
+        $this->tickets->assign($request->attributes->get('actor'), $ticket, $data['assignee_id'], $data['version']);
+
+        return back()->with('status', 'Ticket assignment saved.');
     }
 }

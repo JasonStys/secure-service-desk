@@ -39,6 +39,9 @@ Controllers validate transport data; `TicketService` owns tenant checks, authori
 | Ticket lifecycle | `new → open → pending/resolved/closed`, reopen from `resolved`, and terminal `closed`; invalid edges fail validation. |
 | Tenant isolation | Agents see their tenant; requesters see only their own tickets; cross-tenant identifiers return `404`. |
 | Concurrency safety | Every transition includes an expected version and rejects stale updates. |
+| Ownership workspace | Assign/unassign eligible tenant agents with the same version lock, immutable audit and transactional notification intent. |
+| Operational queue | Combine status/priority/search with assigned-to-me, unassigned and precise SLA deadline windows. |
+| Ticket review | Open an authorized ticket workspace, page through discussion/audit independently, comment and use the current version for each action. |
 | Audit trail | Creation, comments, transitions, and SLA breaches append structured immutable records. |
 | Reliable delivery | Outbox messages are deduplicated, processed in bounded batches, retried with backoff, and dead-lettered after three failures. |
 | SLA automation | Priority determines the response target; a scheduled command marks each overdue ticket once. |
@@ -108,10 +111,13 @@ The complete contract is in [OpenAPI](docs/openapi.yaml) and the human-readable 
 | `database/migrations/` | Relational constraints, operational indexes, and PostgreSQL full-text index. |
 | `database/seeders/` | Synthetic multi-tenant demonstration data. |
 | `resources/views/` | Escaping-by-default semantic HTML dashboard. |
+| `resources/views/ticket.blade.php` | Role-aware ownership/lifecycle forms, bounded discussion/audit pages and workflow help. |
 | `resources/css/` | Responsive, high-contrast visual system. |
 | `resources/js/` | Optional live filtering and confirmation behavior. |
 | `routes/` | Browser, API, worker, and scheduler entry points. |
 | `tests/` | Lifecycle, authorization, injection, escaping, webhook, outbox, SLA, and frontend tests. |
+| `tests/Feature/OwnershipWorkflowTest.php` | Ownership/tenant/version invariants, exact deadline boundaries, bounded history and deterministic interleaved SLA regressions. |
+| `playwright.config.js`, `tests/browser/` | Owned PHP/SQLite/session runtime, CSRF and no-JavaScript desktop/mobile workflows, isolation controls and failure diagnostics. |
 | `tools/validate_repo.php` | Reproducible documentation, header, action-pin, link, and secret checks. |
 | `docs/code-index.md` | Generated exact locations for symbols and variables in every authored code file. |
 | `.github/workflows/` | CI and CodeQL automation. |
@@ -127,12 +133,17 @@ The complete contract is in [OpenAPI](docs/openapi.yaml) and the human-readable 
 - [Technology research](docs/research.md)
 - [Security model](docs/security.md)
 - [Testing strategy](docs/testing.md)
+- [Ownership and ticket workspace](docs/ticket-workspace.md)
+- [Practical workflow validation](docs/reports/practical-workflows-2026-11-09.md)
 - [Code index](docs/code-index.md)
 - [Dependency and Actions review](docs/reports/actions-review-2026-10-14.md)
 
 ## Scope
 
 This repository is a focused engineering case study, not a hosted support product. Email/SMS delivery is represented by a replaceable log adapter; production identity, object storage, observability export, and managed secret storage are documented integration boundaries rather than simulated credentials.
+
+Created by [Jason Stys](https://github.com/JasonStys). The profile and repository issues provide
+contact paths for non-sensitive questions; report vulnerabilities privately as described in SECURITY.md.
 
 ## License
 

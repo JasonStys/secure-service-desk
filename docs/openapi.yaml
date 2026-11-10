@@ -81,6 +81,39 @@ paths:
         '404': {description: Ticket is absent or not visible}
         '422': {$ref: '#/components/responses/ValidationError'}
         '429': {$ref: '#/components/responses/RateLimited'}
+  /tickets/{ticket}/assignment:
+    post:
+      summary: Assign or unassign an eligible tenant service agent with a shared version check
+      parameters:
+        - name: ticket
+          in: path
+          required: true
+          schema: {type: integer, minimum: 1}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [assignee_id, version]
+              properties:
+                assignee_id: {type: [integer, 'null'], minimum: 1}
+                version: {type: integer, minimum: 1}
+      responses:
+        '200':
+          description: Changed ticket or same-owner no-op; SLA and status preserved
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: {$ref: '#/components/schemas/Ticket'}
+        '401': {$ref: '#/components/responses/Unauthorized'}
+        '403': {description: Requester cannot assign work}
+        '404': {description: Ticket absent or invisible to this actor}
+        '422': {$ref: '#/components/responses/ValidationError'}
+        '429': {$ref: '#/components/responses/RateLimited'}
   /webhooks/ticket-events:
     post:
       summary: Authenticate and record an idempotent external event
@@ -151,6 +184,7 @@ components:
       properties:
         id: {type: integer}
         public_id: {type: string, format: uuid}
+        assignee_id: {type: [integer, 'null']}
         title: {type: string}
         description: {type: string}
         status: {$ref: '#/components/schemas/TicketStatus'}

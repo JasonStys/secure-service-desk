@@ -56,7 +56,7 @@
                 </select>
             </label>
             <label class="wide">Description<textarea name="description" maxlength="4000" required rows="4">{{ old('description') }}</textarea></label>
-            <label class="wide">Tags <span class="hint">comma-free slugs, up to five</span><input name="tags[]" pattern="[a-z0-9-]+" placeholder="operations"></label>
+            <label class="wide">Tags <span class="hint">optional slug; API accepts up to five</span><input name="tags[]" pattern="[a-z0-9\-]+" placeholder="operations"></label>
             <input type="hidden" name="request_key" value="browser-{{ Illuminate\Support\Str::uuid() }}">
             <button type="submit">Create ticket</button>
         </form>
@@ -69,22 +69,26 @@
         </div>
         <form method="get" action="{{ route('dashboard') }}" class="filters" data-filter-form>
             <input type="hidden" name="actor" value="{{ $actor->email }}">
-            <label>Search<input type="search" name="q" maxlength="100" value="{{ $filters['q'] ?? '' }}" data-live-search></label>
+            <label>Search<input type="search" name="q" maxlength="100" value="{{ $filters['q'] ?? '' }}" data-live-search aria-describedby="search-help"></label>
             <label>Status<select name="status"><option value="">All</option>@foreach ($statuses as $status)<option value="{{ $status->value }}" @selected(($filters['status'] ?? '') === $status->value)>{{ ucfirst($status->value) }}</option>@endforeach</select></label>
             <label>Priority<select name="priority"><option value="">All</option>@foreach ($priorities as $priority)<option value="{{ $priority->value }}" @selected(($filters['priority'] ?? '') === $priority->value)>{{ ucfirst($priority->value) }}</option>@endforeach</select></label>
+            <label>Owner<select name="owner"><option value="">Any owner</option><option value="unassigned" @selected(($filters['owner'] ?? '') === 'unassigned')>Unassigned</option><option value="mine" @selected(($filters['owner'] ?? '') === 'mine')>Assigned to me</option></select></label>
+            <label>SLA window<select name="due"><option value="">Any deadline</option><option value="overdue" @selected(($filters['due'] ?? '') === 'overdue')>Overdue or due now</option><option value="due-soon" @selected(($filters['due'] ?? '') === 'due-soon')>Due in next 24 hours</option></select></label>
             <button type="submit">Apply</button>
         </form>
+        <p id="search-help" class="hint">Typing previews this page only; Apply searches all visible tickets. SLA filters exclude resolved/closed work and use {{ $capturedAt->toIso8601String() }}. Changing owner never resets deadlines.</p>
 
         <div class="ticket-list" data-ticket-list>
             @forelse ($tickets as $ticket)
                 <article class="ticket" data-ticket-card data-search="{{ $ticket->public_id }} {{ $ticket->title }} {{ $ticket->description }} {{ implode(' ', $ticket->tags) }}">
                     <header>
-                        <div><p class="ticket-id">{{ Str::limit($ticket->public_id, 13, '') }}</p><h3>{{ $ticket->title }}</h3></div>
+                        <div><p class="ticket-id">{{ Str::limit($ticket->public_id, 13, '') }}</p><h3><a href="{{ route('tickets.show', ['ticket' => $ticket, 'actor' => $actor->email]) }}">{{ $ticket->title }}</a></h3></div>
                         <div class="badges"><span class="badge priority-{{ $ticket->priority->value }}">{{ $ticket->priority->value }}</span><span class="badge">{{ $ticket->status->value }}</span></div>
                     </header>
                     <p>{{ $ticket->description }}</p>
                     <dl class="metadata">
                         <div><dt>Requester</dt><dd>{{ $ticket->requester->name }}</dd></div>
+                        <div><dt>Owner</dt><dd>{{ $ticket->assignee?->name ?? 'Unassigned' }}</dd></div>
                         <div><dt>SLA due</dt><dd>{{ $ticket->sla_due_at->format('M j, Y H:i T') }}</dd></div>
                         <div><dt>Version</dt><dd>{{ $ticket->version }}</dd></div>
                     </dl>
@@ -119,6 +123,6 @@
         @endif
     </section>
 </main>
-<footer><p>All names and organizations shown are synthetic demonstration data.</p></footer>
+<footer><p>Created by <a href="https://github.com/JasonStys">Jason Stys</a>. All names and organizations shown are synthetic demonstration data.</p></footer>
 </body>
 </html>

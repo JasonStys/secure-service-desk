@@ -2,7 +2,7 @@
 
 /**
  * File: Exposes bounded, tenant-scoped ticket operations through API version 1.
- * Symbols: TicketApiController, index(), store(), and transition().
+ * Symbols: TicketApiController index(), store(), transition(), and assign().
  * State: validated filters and payload fields; exact locations are in docs/code-index.md.
  */
 
@@ -73,5 +73,16 @@ class TicketApiController extends Controller
         );
 
         return response()->json(['data' => $updated]);
+    }
+
+    /** Apply audited ownership with tenant/role checks and the shared expected version. */
+    public function assign(Request $request, Ticket $ticket): JsonResponse
+    {
+        $data = $request->validate(['assignee_id' => ['present', 'nullable', 'integer', 'min:1'],
+            'version' => ['required', 'integer', 'min:1']]);
+
+        return response()->json(['data' => $this->tickets->assign(
+            $request->attributes->get('actor'), $ticket, $data['assignee_id'], $data['version'],
+        )]);
     }
 }
