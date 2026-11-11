@@ -7,6 +7,33 @@ A portfolio-grade service-desk application built to make correctness visible. It
 
 All people, organizations, tickets, and addresses in the seed data are synthetic.
 
+## Native Windows application
+
+The new **Secure Service Desk 1.1.0** portable application bundles its real Laravel/PHP backend,
+production assets, current PHP runtime and sandboxed Electron window. Extract the complete package
+and launch `SecureServiceDesk.exe`; no PHP, Node, Composer, IDE, Docker or setup commands are needed
+by the application user. This branch contains a tested candidate; a published installer/release is
+a separate acceptance step, not implied by the source change.
+
+Create a fictional request as **Requester**, then choose **Agent** to assign an eligible owner,
+comment and confirm a valid lifecycle transition. Search/owner/SLA filters preserve the selected
+actor's scope; stale versions and cross-tenant requests remain refused. Existing work persists in a
+durable OS-local application profile across restarts. Prepared Northwind/Contoso records are normal
+data initialized inside this same complete app, not a separate demonstration program. New native
+reference actors receive fresh randomized inactive passwords, not a shared installed credential.
+
+The native title, persistent help, authored icon and footer identify **Jason Stys** and his
+[source/contact profile](https://github.com/JasonStys). The local boundary uses an owned ephemeral
+loopback listener, a per-launch private header, exact Host/Origin checks, Laravel CSRF and an isolated
+profile/key. It never loads your development `.env` or database. Closing waits for owned PHP work.
+Actor selection is a **single-OS-owner reference workflow, not production multiuser authentication**;
+use fictional data. Local database/history is plaintext OS-owner data, not an encrypted account vault.
+
+See [native usage, storage and build](docs/native-application.md),
+[observed native validation](docs/reports/native-application-2026-11-10.md), and the
+[actual package workflow](.github/workflows/native-app.yml). Original web/API development and
+PostgreSQL/container workflows remain available below.
+
 ## What this project demonstrates
 
 - **Backend engineering:** PHP 8.5, Laravel 13, validation, transactions, Eloquent relationships, API design, scheduling, and PostgreSQL-aware search.

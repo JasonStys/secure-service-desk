@@ -2,6 +2,11 @@
 
 By Jason Stys.
 
+Current native work: [Windows application usage](native-application.md) and
+[actual native validation](reports/native-application-2026-11-10.md) describe the new complete local
+1.1.0 app. The Word edition below retains its cited historical baseline until the updated illustrated
+guide is independently reviewed.
+
 Manage tenant-scoped support tickets, assignment, shared-version changes, SLA queues and audit/outbox records. Use the documented demonstration identities and local setup; a shared deployment needs a real authenticated identity boundary.
 
 Assign and unassign tenant agents with shared version checks, atomic audit/outbox writes and bounded ticket history; filter owner/SLA queues and recheck stale authorization and SLA candidates.

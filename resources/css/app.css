@@ -56,6 +56,12 @@ label { color: var(--muted); font-size: .86rem; font-weight: 720; }
 .filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr)); gap: .7rem; align-items: end; margin-bottom: 1rem; padding: .9rem; border-radius: .6rem; background: #ece9df; }
 .detail-layout { max-width: 64rem; margin: 2rem auto; padding: 0 1rem; display: grid; gap: 1.25rem; }
 .detail-layout .panel { min-width: 0; }
+.desktop-workspace .site-header { padding-top: 1.4rem; padding-bottom: 1.4rem; }
+.desktop-workspace .site-header h1 { font-size: clamp(1.8rem, 3.5vw, 3rem); line-height: 1.1; }
+.desktop-workspace .detail-layout .panel { padding: 1.25rem; }
+.native-notice { width: min(1180px, calc(100% - 2rem)); margin: 1rem auto; padding: 1rem; border: 1px solid #62a59b; border-radius: .6rem; background: #e5f5f1; }
+.native-notice p { margin: .5rem 0; }
+.native-notice summary { cursor: pointer; font-weight: 700; }
 .workspace-form { display: grid; gap: .75rem; margin: 1rem 0; }
 .workspace-form button { justify-self: start; }
 .prewrap { white-space: pre-wrap; overflow-wrap: anywhere; }

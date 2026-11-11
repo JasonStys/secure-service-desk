@@ -26,19 +26,19 @@ class DatabaseSeeder extends Seeder
         $agent = User::query()->firstOrCreate(['email' => 'agent@northwind.example'], [
             'tenant_id' => $northwind->id,
             'name' => 'Morgan Agent',
-            'password' => Hash::make('local-demo-only'),
+            'password' => $this->referencePassword(),
             'role' => Role::Agent,
         ]);
         $requester = User::query()->firstOrCreate(['email' => 'requester@northwind.example'], [
             'tenant_id' => $northwind->id,
             'name' => 'Riley Requester',
-            'password' => Hash::make('local-demo-only'),
+            'password' => $this->referencePassword(),
             'role' => Role::Requester,
         ]);
         User::query()->firstOrCreate(['email' => 'agent@contoso.example'], [
             'tenant_id' => $contoso->id,
             'name' => 'Casey Other Tenant',
-            'password' => Hash::make('local-demo-only'),
+            'password' => $this->referencePassword(),
             'role' => Role::Agent,
         ]);
 
@@ -53,5 +53,11 @@ class DatabaseSeeder extends Seeder
         if (! $ticket->comments()->exists()) {
             $service->addComment($agent, $ticket, 'Acknowledged. Reviewing the export worker metrics now.');
         }
+    }
+
+    /** Native reference actors get fresh unusable credentials; existing development fixture behavior stays explicit. */
+    private function referencePassword(): string
+    {
+        return Hash::make(app()->environment('native-local') ? bin2hex(random_bytes(32)) : 'local-demo-only');
     }
 }

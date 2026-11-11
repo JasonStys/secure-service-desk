@@ -12,7 +12,7 @@
     <title>Signal Desk</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body @class(['desktop-workspace' => app()->environment('native-local')])>
 <a class="skip-link" href="#main">Skip to main content</a>
 <header class="site-header">
     <div>
@@ -26,6 +26,7 @@
         <a href="{{ route('dashboard', ['actor' => 'requester@northwind.example']) }}">Requester</a>
     </nav>
 </header>
+@include('native-notice')
 
 <main id="main" class="layout">
     @if (session('status'))
