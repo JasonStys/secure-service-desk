@@ -10,6 +10,38 @@ import { mkdtemp, writeFile, link, rm, mkdir, readFile, readdir } from 'node:fs/
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname, basename } from 'node:path';
 import { parseCgi, phpArguments, readBounded, profileIdentity } from '../../desktop/runtime.mjs';
+import {
+    composerInstallArguments,
+    COMPOSER_PHP_SECONDS,
+} from '../../scripts/native-build-policy.mjs';
+
+test('Composer build has a finite independent CLI budget while runtime CGI stays at30 seconds', () => {
+    const effective = (args) =>
+        Object.fromEntries(
+            args.flatMap((value, index) => (value === '-d' ? [args[index + 1].split('=')] : [])),
+        );
+    const runtime = effective(phpArguments('C:/reviewed/php', true));
+    const buildArgs = composerInstallArguments('C:/reviewed/php', 'C:/reviewed/composer.phar');
+    const build = effective(buildArgs);
+    assert.equal(runtime.max_execution_time, '30');
+    assert.equal(build.max_execution_time, '120');
+    assert.equal(COMPOSER_PHP_SECONDS, 120);
+    assert.ok(COMPOSER_PHP_SECONDS > Number(runtime.max_execution_time));
+    assert.ok(COMPOSER_PHP_SECONDS < 180);
+    assert.equal(runtime.allow_url_fopen, '0');
+    assert.equal(build.allow_url_fopen, '1');
+    assert.equal(build.allow_url_include, '0');
+    assert.deepEqual(buildArgs.slice(buildArgs.indexOf('C:/reviewed/composer.phar')), [
+        'C:/reviewed/composer.phar',
+        'install',
+        '--no-dev',
+        '--no-scripts',
+        '--no-plugins',
+        '--no-interaction',
+        '--prefer-dist',
+        '--no-progress',
+    ]);
+});
 
 test('real native initialization retains identified data and refuses unknown nonempty profiles', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'ssd-native-files-'));
