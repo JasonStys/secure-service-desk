@@ -6,10 +6,44 @@
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, link, rm } from 'node:fs/promises';
+import { mkdtemp, writeFile, link, rm, mkdir, readFile, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve, dirname, basename } from 'node:path';
-import { parseCgi, phpArguments, readBounded } from '../../desktop/runtime.mjs';
+import { parseCgi, phpArguments, readBounded, profileIdentity } from '../../desktop/runtime.mjs';
+
+test('real native initialization retains identified data and refuses unknown nonempty profiles', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'ssd-native-files-'));
+    try {
+        const profile = join(directory, 'profile');
+        const first = await profileIdentity(profile);
+        assert.equal(first.fresh, true);
+        assert.equal(first.identity.product, 'secure-service-desk');
+        const marker = await readFile(join(profile, 'profile.json'));
+        const database = join(profile, 'database.sqlite');
+        await writeFile(database, 'synthetic existing bytes');
+        const second = await profileIdentity(profile);
+        assert.equal(second.fresh, false);
+        assert.deepEqual(second.identity, first.identity);
+        assert.deepEqual(await readFile(join(profile, 'profile.json')), marker);
+        assert.equal(await readFile(database, 'utf8'), 'synthetic existing bytes');
+        const unknown = join(directory, 'unknown');
+        await mkdir(unknown);
+        await writeFile(join(unknown, 'preserve.txt'), 'important synthetic bytes');
+        await assert.rejects(profileIdentity(unknown), /Unknown nonempty/);
+        assert.deepEqual(await readdir(unknown), ['preserve.txt']);
+        assert.equal(
+            await readFile(join(unknown, 'preserve.txt'), 'utf8'),
+            'important synthetic bytes',
+        );
+        await writeFile(join(profile, 'profile.json'), '{}\n');
+        await assert.rejects(profileIdentity(profile), /identity is invalid/);
+        assert.equal(await readFile(database, 'utf8'), 'synthetic existing bytes');
+    } finally {
+        assert.equal(dirname(resolve(directory)), resolve(tmpdir()));
+        assert.ok(basename(directory).startsWith('ssd-native-files-'));
+        await rm(directory, { recursive: true });
+    }
+});
 
 test('actual regular reads enforce bytes and reject hardlinks, directories and missing files', async () => {
     const directory = await mkdtemp(join(tmpdir(), 'ssd-native-files-'));

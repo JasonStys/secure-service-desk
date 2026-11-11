@@ -9,7 +9,7 @@ These are actual local results from a synthetic owned profile, not a future host
 | Complete original + native PHP suite | 35 tests passed, 172 assertions; in-memory SQLite under explicit public test settings |
 | PHP formatter / syntax | Passed for new native PHP, actual seeder/test and repository policy; no syntax warnings accepted |
 | Original frontend unit tests | All four passed |
-| Independent native file/CGI/argv tests | All 13 passed, including real hardlinks/bytes, malformed/ambiguous headers and outside redirects |
+| Independent native profile/file/CGI/argv tests | All 14 passed, including actual profile restart/preservation, unknown-folder refusal, real hardlinks/bytes, malformed/ambiguous headers and outside redirects |
 | Original desktop/mobile browser workflows | All 22 passed, zero retries, actual PHP 8.5.12 and Chromium; includes CSRF, stale/foreign ownership, pagination, no-JS forms and scoped axe/overflow checks |
 | Existing browser isolation/format guards | Passed: bad port, absent private fixture, occupied-port refusal and preservation of the owned listener |
 | Complete Composer metadata/audit | Strict metadata valid; zero advisories/abandoned/filter entries in the actual locked query |
@@ -57,3 +57,16 @@ JavaScript CodeQL/full hosted gates remain pending at this local report; Docker 
 used or modified. Historical Word guides retain their earlier source baseline until a separately
 reviewed illustrated edition is produced. Native composition is not included in an invented PHP
 whole-application coverage denominator.
+
+## First hosted source review
+
+The initial committed source passed the original PHP/PostgreSQL, asset, container, repository,
+browser and actual Windows extracted-app jobs. Its processed 201-rule JavaScript analysis reported
+one `js/file-system-race` result at the marker-creation path; the aggregate correctly failed.
+Marker creation already used exclusive `wx`, but the redundant earlier marker `lstat` was removed.
+Initialization now inventories the directory, creates a new marker exclusively only for an empty
+directory, and reads an existing identified profile through the bounded descriptor reader. A real
+regression verifies generated identity, exact marker/database preservation on reopen, refusal of an
+unknown nonempty folder and invalid identity without replacing stored data. A rare failed close
+also sets a failure exit status. No query was disabled and no alert was dismissed; the corrected
+source still requires its fresh processed analysis and native jobs before acceptance.

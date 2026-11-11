@@ -74,6 +74,7 @@ async function closeOwned() {
         await startup;
         await service?.close();
     } catch {
+        process.exitCode = 1;
         dialog.showErrorBox(
             'Service Desk close failed',
             'The local service did not close cleanly. Preserve your private profile before recovery.',

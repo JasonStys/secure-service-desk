@@ -51,7 +51,7 @@ export async function readBounded(path, limit) {
 }
 
 /** Publish only new profile metadata; never reset unknown contents, credentials or an existing database. */
-async function profileIdentity(profile) {
+export async function profileIdentity(profile) {
     const absolute = resolve(profile);
     for (let path = absolute; ; path = dirname(path)) {
         const info = await lstat(path).catch((error) =>
@@ -63,12 +63,8 @@ async function profileIdentity(profile) {
     await mkdir(absolute, { recursive: true, mode: 0o700 });
     const marker = join(absolute, 'profile.json');
     let fresh = false;
-    try {
-        await lstat(marker);
-    } catch (error) {
-        if (error.code !== 'ENOENT') throw error;
-        if ((await readdir(absolute)).length !== 0)
-            throw new Error('Unknown nonempty profile; no files were reset.');
+    const entries = await readdir(absolute);
+    if (entries.length === 0) {
         const identity = {
             schema: 1,
             product: 'secure-service-desk',
@@ -82,6 +78,8 @@ async function profileIdentity(profile) {
             await file.close();
         }
         fresh = true;
+    } else if (!entries.includes('profile.json')) {
+        throw new Error('Unknown nonempty profile; no files were reset.');
     }
     const serialized = (await readBounded(marker, 4096)).toString('utf8');
     const identity = JSON.parse(serialized);
@@ -100,7 +98,10 @@ async function profileIdentity(profile) {
         const file = await open(database, 'wx', 0o600);
         await file.close();
     } else {
-        const file = await open(database, constants.O_RDWR | (constants.O_NOFOLLOW ?? 0));
+        const file = await open(
+            database,
+            constants.O_RDWR | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0),
+        );
         try {
             const info = await file.stat();
             if (!info.isFile() || info.nlink !== 1 || (await lstat(database)).isSymbolicLink())
