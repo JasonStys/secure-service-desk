@@ -1,0 +1,70 @@
+{
+    "schema": 1,
+    "repository": "secure-service-desk",
+    "runtimeVersion": "1.1.0",
+    "runtimeSource": "b9d683895b1b3f3ec47ccc83cea68339da9c2f22",
+    "createdAt": "2026-11-11T07:03:10.890Z",
+    "author": "Jason Stys",
+    "document": "windows-application-guide-1.1.0.docx",
+    "sha256": "ae804f6b5e44bdf30e2ff164972af5f834adcc672a2fef1e0c2e43a2d6ab6654",
+    "screenshots": [
+        {
+            "file": "ticket-queue.png",
+            "sha256": "109e2508a2022490232c3d0da68fa2a3f382666390d351b48ca4a8b7743664b1",
+            "width": 1899,
+            "height": 1257,
+            "caption": "The real installed ticket queue shows the saved synthetic ticket and search results for the selected fictional actor."
+        },
+        {
+            "file": "ticket-workspace.png",
+            "sha256": "db4b36ca887744ab5c304d9e440c040e5dbab62916f0499dabab4fd88cbbfd5c",
+            "width": 1899,
+            "height": 1257,
+            "caption": "The installed Laravel ticket form displays retained assignment, status and comment evidence. Fictional actor selection is not sign-in."
+        }
+    ],
+    "snippets": [
+        {
+            "file": "desktop/runtime.mjs",
+            "first": 248,
+            "last": 268,
+            "sha256": "04afa86872e46c7d4c44eccc8262f911228d02a4ec8d1aafabcb7133e3be65ba",
+            "url": "https://github.com/JasonStys/secure-service-desk/blob/b9d683895b1b3f3ec47ccc83cea68339da9c2f22/desktop/runtime.mjs#L248"
+        }
+    ],
+    "observedTests": [
+        {
+            "name": "Real native workflows",
+            "observed": "Two installed Laravel/Electron launches passed real ticket/assignment/comment/search workflows, selected-actor tenant filtering, CSRF/invalid-input refusal and exact retained state.",
+            "result": "Passed"
+        },
+        {
+            "name": "Source and security",
+            "observed": "All required main workflows for the runtime revision passed; processed CodeQL analyses reported zero open main alerts before release.",
+            "result": "Passed"
+        },
+        {
+            "name": "Distribution identity",
+            "observed": "All 2 assets matched provider/checksum identities; all 6698 installed files remained unchanged during acceptance.",
+            "result": "Verified"
+        },
+        {
+            "name": "PC scope",
+            "observed": "New per-user version folder and individual links verified. Synthetic profiles only; existing data and Docker were not used or changed.",
+            "result": "Verified"
+        }
+    ],
+    "visualReview": {
+        "approved": true,
+        "reviewer": "root",
+        "ooxmlSchema": "passed",
+        "pages": {
+            "page-1.png": "e661d7f0bf1192df22bb93d1205f85822f72fa20651d00cb0777baad705018a6",
+            "page-2.png": "d74ca916e30eb73cc4412e4855d2baa352380be572feb1e975c013ee80cda1ea",
+            "page-3.png": "588e531aa6c7da105c3e37dda74fe20a2d755b6589f46c412d21898ce5bdcaa3",
+            "page-4.png": "389e49ff801f390a8cab30b9f3a4b85fc69e06803135441661d11625e6bd8c06"
+        },
+        "scope": "All four final page contents individually inspected; only exact identical pixels carry prior inspection.",
+        "checkedUtc": "2026-11-11T07:15:18.887805+00:00"
+    }
+}
