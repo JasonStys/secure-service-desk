@@ -61,20 +61,20 @@ Controllers validate transport data; `TicketService` owns tenant checks, authori
 
 ## Major features
 
-| Feature | Behavior |
-|---|---|
-| Ticket lifecycle | `new → open → pending/resolved/closed`, reopen from `resolved`, and terminal `closed`; invalid edges fail validation. |
-| Tenant isolation | Agents see their tenant; requesters see only their own tickets; cross-tenant identifiers return `404`. |
-| Concurrency safety | Every transition includes an expected version and rejects stale updates. |
-| Ownership workspace | Assign/unassign eligible tenant agents with the same version lock, immutable audit and transactional notification intent. |
-| Operational queue | Combine status/priority/search with assigned-to-me, unassigned and precise SLA deadline windows. |
-| Ticket review | Open an authorized ticket workspace, page through discussion/audit independently, comment and use the current version for each action. |
-| Audit trail | Creation, comments, transitions, and SLA breaches append structured immutable records. |
-| Reliable delivery | Outbox messages are deduplicated, processed in bounded batches, retried with backoff, and dead-lettered after three failures. |
-| SLA automation | Priority determines the response target; a scheduled command marks each overdue ticket once. |
-| Integration API | Versioned JSON endpoints, bounded pagination, request-key idempotency, rate limiting, and signed webhook ingestion. |
-| Search | PostgreSQL uses a GIN full-text index; SQLite uses an escaped literal fallback for local development. |
-| Progressive UI | All mutations are standard CSRF-protected forms; JavaScript adds live search and transition confirmation. |
+| Feature             | Behavior                                                                                                                               |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Ticket lifecycle    | `new → open → pending/resolved/closed`, reopen from `resolved`, and terminal `closed`; invalid edges fail validation.                  |
+| Tenant isolation    | Agents see their tenant; requesters see only their own tickets; cross-tenant identifiers return `404`.                                 |
+| Concurrency safety  | Every transition includes an expected version and rejects stale updates.                                                               |
+| Ownership workspace | Assign/unassign eligible tenant agents with the same version lock, immutable audit and transactional notification intent.              |
+| Operational queue   | Combine status/priority/search with assigned-to-me, unassigned and precise SLA deadline windows.                                       |
+| Ticket review       | Open an authorized ticket workspace, page through discussion/audit independently, comment and use the current version for each action. |
+| Audit trail         | Creation, comments, transitions, and SLA breaches append structured immutable records.                                                 |
+| Reliable delivery   | Outbox messages are deduplicated, processed in bounded batches, retried with backoff, and dead-lettered after three failures.          |
+| SLA automation      | Priority determines the response target; a scheduled command marks each overdue ticket once.                                           |
+| Integration API     | Versioned JSON endpoints, bounded pagination, request-key idempotency, rate limiting, and signed webhook ingestion.                    |
+| Search              | PostgreSQL uses a GIN full-text index; SQLite uses an escaped literal fallback for local development.                                  |
+| Progressive UI      | All mutations are standard CSRF-protected forms; JavaScript adds live search and transition confirmation.                              |
 
 ## Quick start
 
@@ -125,30 +125,30 @@ The complete contract is in [OpenAPI](docs/openapi.yaml) and the human-readable 
 
 ## Repository map
 
-| Path | Purpose |
-|---|---|
-| `app/Enums/` | Roles, priorities, SLA targets, states, and transition rules. |
-| `app/Http/Controllers/` | Thin browser/API transport adapters and validation. |
-| `app/Http/Middleware/` | Demonstration actor resolution; replaceable at the application boundary. |
-| `app/Models/` | Typed Eloquent entities and tenant-scoped query behavior. |
-| `app/Services/TicketService.php` | Central authorization, transactions, audit, and outbox writes. |
-| `app/Services/OutboxProcessor.php` | Bounded delivery with retry and dead-letter handling. |
-| `app/Services/SlaEscalationService.php` | Idempotent scheduled SLA breach handling. |
-| `app/Services/WebhookService.php` | Replay-safe webhook receipt persistence. |
-| `database/migrations/` | Relational constraints, operational indexes, and PostgreSQL full-text index. |
-| `database/seeders/` | Synthetic multi-tenant demonstration data. |
-| `resources/views/` | Escaping-by-default semantic HTML dashboard. |
-| `resources/views/ticket.blade.php` | Role-aware ownership/lifecycle forms, bounded discussion/audit pages and workflow help. |
-| `resources/css/` | Responsive, high-contrast visual system. |
-| `resources/js/` | Optional live filtering and confirmation behavior. |
-| `routes/` | Browser, API, worker, and scheduler entry points. |
-| `tests/` | Lifecycle, authorization, injection, escaping, webhook, outbox, SLA, and frontend tests. |
+| Path                                      | Purpose                                                                                                                        |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `app/Enums/`                              | Roles, priorities, SLA targets, states, and transition rules.                                                                  |
+| `app/Http/Controllers/`                   | Thin browser/API transport adapters and validation.                                                                            |
+| `app/Http/Middleware/`                    | Demonstration actor resolution; replaceable at the application boundary.                                                       |
+| `app/Models/`                             | Typed Eloquent entities and tenant-scoped query behavior.                                                                      |
+| `app/Services/TicketService.php`          | Central authorization, transactions, audit, and outbox writes.                                                                 |
+| `app/Services/OutboxProcessor.php`        | Bounded delivery with retry and dead-letter handling.                                                                          |
+| `app/Services/SlaEscalationService.php`   | Idempotent scheduled SLA breach handling.                                                                                      |
+| `app/Services/WebhookService.php`         | Replay-safe webhook receipt persistence.                                                                                       |
+| `database/migrations/`                    | Relational constraints, operational indexes, and PostgreSQL full-text index.                                                   |
+| `database/seeders/`                       | Synthetic multi-tenant demonstration data.                                                                                     |
+| `resources/views/`                        | Escaping-by-default semantic HTML dashboard.                                                                                   |
+| `resources/views/ticket.blade.php`        | Role-aware ownership/lifecycle forms, bounded discussion/audit pages and workflow help.                                        |
+| `resources/css/`                          | Responsive, high-contrast visual system.                                                                                       |
+| `resources/js/`                           | Optional live filtering and confirmation behavior.                                                                             |
+| `routes/`                                 | Browser, API, worker, and scheduler entry points.                                                                              |
+| `tests/`                                  | Lifecycle, authorization, injection, escaping, webhook, outbox, SLA, and frontend tests.                                       |
 | `tests/Feature/OwnershipWorkflowTest.php` | Ownership/tenant/version invariants, exact deadline boundaries, bounded history and deterministic interleaved SLA regressions. |
-| `playwright.config.js`, `tests/browser/` | Owned PHP/SQLite/session runtime, CSRF and no-JavaScript desktop/mobile workflows, isolation controls and failure diagnostics. |
-| `tools/validate_repo.php` | Reproducible documentation, header, action-pin, link, and secret checks. |
-| `docs/code-index.md` | Generated exact locations for symbols and variables in every authored code file. |
-| `.github/workflows/` | CI and CodeQL automation. |
-| `Dockerfile` / `compose.yaml` | Non-root application image and local PostgreSQL stack. |
+| `playwright.config.js`, `tests/browser/`  | Owned PHP/SQLite/session runtime, CSRF and no-JavaScript desktop/mobile workflows, isolation controls and failure diagnostics. |
+| `tools/validate_repo.php`                 | Reproducible documentation, header, action-pin, link, and secret checks.                                                       |
+| `docs/code-index.md`                      | Generated exact locations for symbols and variables in every authored code file.                                               |
+| `.github/workflows/`                      | CI and CodeQL automation.                                                                                                      |
+| `Dockerfile` / `compose.yaml`             | Non-root application image and local PostgreSQL stack.                                                                         |
 
 | `docs/handbook.md` | Organized current usage, architecture, security and validation documentation. |
 | `docs/reports/project-guide.docx` | Reviewed Word guide bound to the cited source revision. |
@@ -186,3 +186,13 @@ MIT — see [LICENSE](LICENSE).
 Start with the [organized handbook](docs/handbook.md) for current usage, design, security and test guidance. Reviewed downloadable editions: [project-guide.docx](docs/reports/project-guide.docx).
 
 [Publication identities and source scope](docs/reports/publications.json) · [Documentation validation record](docs/reports/documentation-refresh-2026-11-09.md). Historical results retain their own tested revision and date.
+
+## Current Windows application guide
+
+The published **1.1.0** app has a [four-page illustrated guide](docs/reports/windows-application-guide-1.1.0.docx) with actual installed screenshots, a worked user journey, important source excerpts and operating limits. Read the [dated validation report](docs/reports/installed-windows-2026-11-11.md) and [byte/page review manifest](docs/reports/windows-application-guide-1.1.0.json) for exact scope. Historical documentation editions remain unchanged.
+
+Added files:
+
+- [docs/reports/windows-application-guide-1.1.0.docx](docs/reports/windows-application-guide-1.1.0.docx): source-specific installed-app workflow, screenshots, code and measured validation.
+- [docs/reports/windows-application-guide-1.1.0.json](docs/reports/windows-application-guide-1.1.0.json): document, screenshot, immutable-source and reviewed-page hashes.
+- [docs/reports/installed-windows-2026-11-11.md](docs/reports/installed-windows-2026-11-11.md): observed results, installation, data handling and remaining limits.
