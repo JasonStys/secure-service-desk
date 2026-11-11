@@ -11,7 +11,8 @@ import { createHash } from 'node:crypto';
 import { cp, mkdir, readdir, lstat, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { phpArguments, readBounded, VERSION } from '../desktop/runtime.mjs';
+import { readBounded, VERSION } from '../desktop/runtime.mjs';
+import { composerInstallArguments } from './native-build-policy.mjs';
 
 const run = promisify(execFile);
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -194,36 +195,16 @@ const composerEnvironment = Object.fromEntries(
     ),
 );
 // Build-only Composer needs HTTPS downloads. These overrides never reach the application CGI.
-await checked(
-    join(phpSdk, 'php.exe'),
-    [
-        ...phpArguments(phpSdk),
-        '-d',
-        'extension=zip',
-        '-d',
-        'extension=curl',
-        '-d',
-        'allow_url_fopen=1',
-        composer,
-        'install',
-        '--no-dev',
-        '--no-scripts',
-        '--no-plugins',
-        '--no-interaction',
-        '--prefer-dist',
-        '--no-progress',
-    ],
-    {
-        cwd: application,
-        env: {
-            ...composerEnvironment,
-            COMPOSER_HOME: isolatedComposer,
-            COMPOSER_AUTH: '{}',
-            COMPOSER_ROOT_VERSION: VERSION,
-            COMPOSER_CACHE_DIR: join(root, '.runtime/composer-cache'),
-        },
+await checked(join(phpSdk, 'php.exe'), composerInstallArguments(phpSdk, composer), {
+    cwd: application,
+    env: {
+        ...composerEnvironment,
+        COMPOSER_HOME: isolatedComposer,
+        COMPOSER_AUTH: '{}',
+        COMPOSER_ROOT_VERSION: VERSION,
+        COMPOSER_CACHE_DIR: join(root, '.runtime/composer-cache'),
     },
-);
+});
 const source = (
     await checked('git', [
         '-c',

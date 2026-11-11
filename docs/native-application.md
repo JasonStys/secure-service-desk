@@ -94,6 +94,9 @@ no plugins/scripts, and production-only locked install. Build-only HTTPS is sepa
 CGI flags, which keep remote URL fopen and URL include disabled. The native acceptance strips developer runtimes from
 PATH and uses only an explicitly marked synthetic profile selected before Electron initializes.
 Actual forms/CSRF/roles/versions and two independent native launches are tested, not mocked responses.
+Composer's trusted build process gets a finite120-second PHP execution budget inside the existing
+180-second external process deadline. Native CGI requests retain their30-second PHP budget. These
+CLI overrides do not edit an ini file or change application runtime policy.
 The archive command creates a complete ZIP and SHA256 sidecar, extracts that fresh archive and runs
 the relocated executable. Acceptance compares source identity and both bundled launcher-module
 hashes with the build record and the current checkout. Those hashes are observed from the launched
@@ -120,6 +123,7 @@ evidence. Current source checks do not retroactively certify historical Word pub
 | `tests/native/runtime.test.mjs` | Real bounded/hardlink file cases and independent malformed CGI/argv cases. |
 | `scripts/prepare-native-sdk.ps1` | Official checksum-bound build SDK download and signed CRT selection. |
 | `scripts/build-native.mjs` | Production-only source/dependency packaging, authored icon and immutable candidate metadata. |
+| `scripts/native-build-policy.mjs` | Fixed production Composer argv and isolated finite CLI build-time budget. |
 | `scripts/archive-native.ps1` | Fresh complete ZIP, streaming SHA256, relocation and real extracted-app acceptance. |
 | `scripts/test-native-app.mjs` | Actual packaged role/CSRF/version/search/persistence/exit acceptance and bounded diagnostics. |
 | `.github/workflows/native-app.yml` | Real Windows package tests with bounded routine artifact retention. |
