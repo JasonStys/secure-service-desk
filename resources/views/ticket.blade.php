@@ -11,11 +11,12 @@
     <title>Ticket workspace · Signal Desk</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
+<body @class(['desktop-workspace' => app()->environment('native-local')])>
 <a class="skip-link" href="#main">Skip to main content</a>
 <header class="site-header"><div><p class="eyebrow">TICKET WORKSPACE</p><h1>{{ $ticket->title }}</h1><p class="ticket-id">{{ $ticket->public_id }}</p></div>
     <nav aria-label="Workspace navigation"><a href="{{ route('dashboard', ['actor' => $actor->email]) }}">Back to queue</a><p>Viewing as {{ $actor->name }}</p></nav>
 </header>
+@include('native-notice')
 <main id="main" class="detail-layout">
     @if (session('status'))<p class="notice" role="status">{{ session('status') }}</p>@endif
     @if ($errors->any())<section class="errors" role="alert"><h2>Please correct the following</h2><ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul><p>Refresh the workspace if the version changed. Your attempted change was not applied.</p></section>@endif

@@ -1,11 +1,21 @@
 {
   "$schema": "https://www.schemastore.org/package.json",
+  "name": "secure-service-desk",
+  "description": "A complete local tenant-scoped support-ticket workspace with durable audit and version-safe ownership.",
+  "version": "1.1.0",
+  "author": {
+    "name": "Jason Stys"
+  },
+  "main": "desktop/main.mjs",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "vite build",
     "dev": "vite",
     "test": "node --test tests/frontend/*.test.js",
+    "test:native": "node --test tests/native/*.test.mjs",
+    "build:native": "node scripts/build-native.mjs",
+    "test:native-app": "node scripts/test-native-app.mjs",
     "test:browser": "playwright test",
     "check:browser-isolation": "node tests/browser/check-isolation.js",
     "format:browser": "prettier --write --tab-width 4 --single-quote --print-width 100 tests/browser/*.js playwright.config.js",
@@ -14,8 +24,35 @@
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@playwright/test": "1.64.0",
+    "electron": "44.11.0",
+    "electron-builder": "26.18.0",
     "laravel-vite-plugin": "^3.1",
     "prettier": "3.9.10",
     "vite": "^8.3.4"
-  }
+  },
+  "build": {
+    "appId": "com.jasonstys.secureservicedesk",
+    "productName": "Secure Service Desk",
+    "directories": {
+      "output": "release/native"
+    },
+    "files": [
+      "desktop/*.mjs",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": ".runtime/native-resources",
+        "to": "native"
+      }
+    ],
+    "win": {
+      "target": "dir",
+      "executableName": "SecureServiceDesk",
+      "icon": ".runtime/desk.ico",
+      "signExecutable": false
+    },
+    "asar": true
+  },
+  "overrides": { "minimatch@>=7 <11.0.1": "11.0.1" }
 }

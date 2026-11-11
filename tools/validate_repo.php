@@ -25,7 +25,7 @@ foreach ($required as $path) {
     }
 }
 
-$sourceRoots = ['app', 'database/factories', 'database/migrations', 'database/seeders', 'routes', 'resources/js', 'resources/css', 'resources/views', 'tests'];
+$sourceRoots = ['app', 'database/factories', 'database/migrations', 'database/seeders', 'routes', 'resources/js', 'resources/css', 'resources/views', 'tests', 'native', 'desktop', 'scripts'];
 $sources = ['bootstrap/app.php', 'vite.config.js', 'playwright.config.js', 'tools/validate_repo.php', 'scripts/verify.sh'];
 foreach ($sourceRoots as $directory) {
     $absolute = "{$root}/{$directory}";
@@ -34,7 +34,7 @@ foreach ($sourceRoots as $directory) {
     }
     $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($absolute, FilesystemIterator::SKIP_DOTS));
     foreach ($iterator as $file) {
-        if ($file->isFile() && preg_match('/\.(php|js|css)$/', $file->getFilename())) {
+        if ($file->isFile() && preg_match('/\.(php|js|mjs|css|ps1|py|sh)$/', $file->getFilename())) {
             $sources[] = str_replace('\\', '/', substr($file->getPathname(), strlen($root) + 1));
         }
     }
@@ -59,13 +59,23 @@ foreach ($sources as $path) {
 }
 
 $authoredFiles = [];
-$tree = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
+$generatedRoots = ['vendor', 'node_modules', 'storage', 'public/build', '.git', '.runtime', 'release', 'artifacts', 'build', '.phpunit.cache', '.idea', '.vscode', '.codex', '.cursor', '.nova', '.zed'];
+$filtered = new RecursiveCallbackFilterIterator(
+    new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS),
+    function (SplFileInfo $file) use ($root, $generatedRoots): bool {
+        $relative = str_replace('\\', '/', substr($file->getPathname(), strlen($root) + 1));
+
+        return ! $file->isDir() || ! in_array($relative, $generatedRoots, true);
+    },
+);
+$tree = new RecursiveIteratorIterator($filtered);
 foreach ($tree as $file) {
     $relative = str_replace('\\', '/', substr($file->getPathname(), strlen($root) + 1));
-    if (! $file->isFile() || preg_match('#^(vendor|node_modules|storage|public/build|\.git)/#', $relative)) {
+    if (! $file->isFile() || in_array($relative, ['auth.json', '.phpactor.json', '.phpunit.result.cache'], true)
+        || preg_match('#^(vendor|node_modules|storage|public/build|\.git)/#', $relative)) {
         continue;
     }
-    if (preg_match('/\.(php|js|css|md|ya?ml|json|sh)$/', $relative) || in_array($relative, ['Dockerfile', 'LICENSE'], true)) {
+    if (preg_match('/\.(php|js|mjs|css|md|ya?ml|json|sh|py|ps1)$/', $relative) || in_array($relative, ['Dockerfile', 'LICENSE'], true)) {
         $authoredFiles[$relative] = $file->getPathname();
     }
 }
@@ -116,7 +126,10 @@ foreach ($sources as $path) {
     $variables = [];
     foreach ($lines as $offset => $line) {
         $lineNumber = $offset + 1;
-        if (preg_match_all('/\b(?:class|enum|interface|trait|function)\s+([A-Za-z_]\w*)|\bconst\s+([A-Za-z_]\w*)/', $line, $found, PREG_SET_ORDER)) {
+        $declarationPattern = str_ends_with($path, '.ps1')
+            ? '/\bfunction\s+([A-Za-z_][\w-]*)|\bconst\s+([A-Za-z_]\w*)/'
+            : '/\b(?:class|enum|interface|trait|function)\s+([A-Za-z_]\w*)|\bconst\s+([A-Za-z_]\w*)/';
+        if (preg_match_all($declarationPattern, $line, $found, PREG_SET_ORDER)) {
             foreach ($found as $match) {
                 $symbols[$match[1] !== '' ? $match[1] : $match[2]][] = $lineNumber;
             }
