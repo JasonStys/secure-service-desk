@@ -14,7 +14,7 @@ COPY resources ./resources
 COPY vite.config.js ./
 RUN npm run build
 
-FROM php:8.5-cli-alpine AS runtime
+FROM php:8.6-cli-alpine AS runtime
 RUN apk add --no-cache postgresql-dev \
     && docker-php-ext-install pdo_pgsql \
     && addgroup -S app \
